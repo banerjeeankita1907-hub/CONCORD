@@ -41,10 +41,12 @@ export function runExperiments() {
   ];
   const lww = createReplicatedRegisterModel({ replicas, merge: "lww" });
   const arrival = createReplicatedRegisterModel({ replicas, merge: "arrival" });
+  const lossy = createReplicatedRegisterModel({ replicas, merge: "lww", maxDrops: 1 });
   const fullLww = explore(lww, { maxStates: 100_000 });
   const reducedLww = exploreWithSleepSets(lww, { maxConfigurations: 100_000 });
   const lwwAudit = auditIndependence(lww, { maxStates: 100_000 });
   const brokenArrival = explore(arrival, { maxStates: 100_000 });
+  const messageLoss = explore(lossy, { maxStates: 100_000 });
 
   const validHistory = checkLinearizability([
     { id: "write-east", client: "c0", invoke: 0, complete: 4, operation: "write", args: { value: 1 }, result: "ok" },
@@ -78,7 +80,8 @@ export function runExperiments() {
       lwwBaseline: fullLww,
       lwwReduced: reducedLww,
       lwwIndependenceAudit: lwwAudit,
-      arrivalOrderNegativeControl: brokenArrival
+      arrivalOrderNegativeControl: brokenArrival,
+      permanentMessageLossNegativeControl: messageLoss
     },
     linearizability: {
       overlappingHistory: validHistory,
