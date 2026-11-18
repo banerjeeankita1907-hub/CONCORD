@@ -15,6 +15,12 @@ console.log(`  LWW independence audit: ${report.replicatedRegister.lwwIndependen
 console.log(`  arrival-order negative control: ${report.replicatedRegister.arrivalOrderNegativeControl.status}`);
 console.log(`  permanent message-loss control: ${report.replicatedRegister.permanentMessageLossNegativeControl.status}`);
 console.log("");
+console.log("");
+console.log("Escrow counter:");
+console.log(`  rights-conserving protocol: ${report.escrowCounter.rightsConservingBaseline.status}`);
+console.log(`  exhaustive independence audit: ${report.escrowCounter.independenceAudit.status}`);
+console.log(`  naive local-quota control: ${report.escrowCounter.naiveQuotaNegativeControl.status}`);
+console.log("");
 console.log("Linearizability:");
 console.log(`  valid overlapping history: ${report.linearizability.overlappingHistory.status}`);
 console.log(`  stale-read negative control: ${report.linearizability.staleReadNegativeControl.status}`);
