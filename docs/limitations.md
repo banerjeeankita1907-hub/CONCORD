@@ -25,6 +25,9 @@
 - The LWW register is a simplified abstract object. It does not model a real
   database API, clock drift, hybrid clocks, transactional multi-key updates,
   or user-visible conflict-resolution policy.
+- The escrow counter uses a fixed set of replicas and finite predeclared
+  programs. It does not model replica membership changes, revocation, lease
+  expiry, Byzantine participants, or recovery of rights after permanent loss.
 - The checker validates only the model supplied to it. It does not establish
   that the model accurately represents a deployed implementation.
 
