@@ -4,10 +4,10 @@
   "private": false,
   "type": "module",
   "description": "A bounded verification laboratory for concurrent and replicated systems.",
-  "engines": { "node": ">=20" },
+  "engines": { "node": ">=22" },
   "scripts": {
     "test": "node --test",
-    "check": "node --check src/engine.js && node --check src/por.js && node --check src/linearizability.js && node --check src/replicated-register.js && node --check src/independence-audit.js && node --check src/experiments.js",
+    "check": "node --check src/engine.js && node --check src/por.js && node --check src/linearizability.js && node --check src/replicated-register.js && node --check src/independence-audit.js && node --check src/differential.js && node --check src/experiments.js",
     "experiment": "node src/experiments.js",
     "verify:examples": "node src/cli.js"
   },
