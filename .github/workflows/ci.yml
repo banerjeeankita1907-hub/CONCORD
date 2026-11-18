@@ -36,3 +36,16 @@ jobs:
         run: npm run experiment
       - name: CLI smoke test
         run: npm run verify:examples
+
+  formal-cross-check:
+    name: TLA+ escrow invariant cross-check (Apalache 0.63.0)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7
+      - name: Verify finite escrow specification
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE/formal:/var/apalache" \
+            ghcr.io/apalache-mc/apalache:0.63.0 \
+            check --length=4 --inv=TypeOK,Conservation,GlobalBound --no-deadlock EscrowCounter.tla
