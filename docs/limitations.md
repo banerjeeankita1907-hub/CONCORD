@@ -17,9 +17,11 @@
 
 - Models use deterministic transitions over JSON-compatible data.
 - The replicated-register model has finite predetermined local writes.
-- The network is an unordered bag with reliable eventual delivery. It does
-  not currently model message loss, partitions, Byzantine behavior, process
-  crashes, durable recovery, reconfiguration, or unbounded retries.
+- The network is an unordered bag with arbitrary delivery order, bounded
+  duplicate delivery, and an optional bounded permanent-drop fault. It does not
+  model transient partitions, retransmission/anti-entropy repair, Byzantine
+  behavior, process crashes, durable recovery, reconfiguration, or unbounded
+  retries.
 - The LWW register is a simplified abstract object. It does not model a real
   database API, clock drift, hybrid clocks, transactional multi-key updates,
   or user-visible conflict-resolution policy.
