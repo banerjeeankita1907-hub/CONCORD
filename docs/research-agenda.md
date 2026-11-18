@@ -48,8 +48,10 @@ These hypotheses are limited to tested finite models and parameters.
    with the naive local-quota negative control.
 7. Run a deterministic, seeded corpus of 120 generated bounded counter
    systems through BFS, POR, and the independence audit; replay BFS witnesses.
-8. Run valid and invalid finite histories through the sequential-spec checker.
-9. Run all tests and experiments in CI on Node.js 22 and 24.
+8. Check the escrow TLA+ specification with Apalache 0.63.0 at a four-step
+   bound, separately from the JavaScript model.
+9. Run valid and invalid finite histories through the sequential-spec checker.
+10. Run all tests and experiments in CI on Node.js 22 and 24.
 
 ## Measurements
 
@@ -61,6 +63,9 @@ The experiment runner records:
 - seeded model corpus size and BFS/POR outcome agreement;
 - safety outcomes and counterexample depth;
 - linearizability search nodes and witness order.
+
+The independent TLA+ run checks the manually encoded two-replica escrow case;
+it is cross-validation of one finite example, not refinement verification.
 
 Elapsed wall-clock times are diagnostic only and are not treated as robust
 performance evidence in this prototype. A publishable comparison would need
@@ -94,6 +99,7 @@ to hide or explain away.
 - Queue, compare-and-swap register, partition-repair protocol, and replicated
   set specifications.
 - Cross-validation of histories against Porcupine and protocol specifications
-  against TLC/Apalache where their respective input languages apply.
+  against TLC/Apalache where their respective input languages apply; strengthen
+  the JavaScript/TLA+ relationship with generated trace correspondence tests.
 - Experiments separating the contribution of state hashing, POR, and symmetry
   reduction rather than reporting one combined speedup.
