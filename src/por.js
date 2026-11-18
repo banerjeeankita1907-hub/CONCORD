@@ -36,7 +36,9 @@ export function exploreWithSleepSets(model, options = {}) {
 
   const started = Date.now();
   const independenceCache = new Map();
-  const visited = new Set();
+  const visitedDepths = new Map();
+  const cutOffConfigurations = new Set();
+  let configurationLimitHit = false;
   let configurations = 0;
   let transitions = 0;
   let sleepPruned = 0;
@@ -47,7 +49,7 @@ export function exploreWithSleepSets(model, options = {}) {
   function independentAt(state, stateKey, a, b) {
     if (a.id === b.id) return false;
     const pair = [a.id, b.id].sort();
-    const cacheKey = stateKey + "|" + pair.join("|");
+    const cacheKey = JSON.stringify([stateKey, pair]);
     if (independenceCache.has(cacheKey)) return independenceCache.get(cacheKey);
     const ab = Boolean(model.independent(a, b, state));
     const ba = Boolean(model.independent(b, a, state));
@@ -78,18 +80,20 @@ export function exploreWithSleepSets(model, options = {}) {
     const enabled = transitionMap(model, state);
     const enabledById = new Map(enabled.map((item) => [item.id, item]));
     const sleep = new Set([...sleepInput].filter((id) => enabledById.has(id)));
-    const configKey = stateKey + "|sleep:" + [...sleep].sort().join(",") + "|remaining:" + (maxDepth - depth);
-    if (visited.has(configKey)) return;
+    const configKey = JSON.stringify([stateKey, [...sleep].sort()]);
+    const previousDepth = visitedDepths.get(configKey);
+    if (previousDepth !== undefined && previousDepth <= depth) return;
     if (configurations >= maxConfigurations) {
-      truncated = true;
+      configurationLimitHit = true;
       return;
     }
-    visited.add(configKey);
+    visitedDepths.set(configKey, depth);
+    cutOffConfigurations.delete(configKey);
     configurations += 1;
 
     const reason = invariantViolation(model, state);
     if (reason !== null) {
-      counterexample = { reason, depth, trace, state };
+      if (counterexample === null) counterexample = { reason, depth, trace, state };
       if (stopOnViolation) return;
     }
 
@@ -99,7 +103,7 @@ export function exploreWithSleepSets(model, options = {}) {
       return;
     }
     if (depth >= maxDepth) {
-      truncated = true;
+      cutOffConfigurations.add(configKey);
       return;
     }
 
@@ -131,12 +135,12 @@ export function exploreWithSleepSets(model, options = {}) {
         sleepPruned += 1;
       }
       localSleep.add(transition.id);
-      if (truncated && configurations >= maxConfigurations) return;
+      if (configurationLimitHit) return;
     }
   }
 
   visit(cloneState(model.initialState), new Set(), 0, []);
-  const complete = !truncated && (!counterexample || !stopOnViolation);
+  const complete = !configurationLimitHit && cutOffConfigurations.size === 0 && (!counterexample || !stopOnViolation);
   return {
     status: counterexample ? "counterexample" : complete ? "safe-within-bounds" : "inconclusive",
     complete,
