@@ -34,9 +34,9 @@ These hypotheses are limited to tested finite models and parameters.
 2. Run exhaustive BFS with a fixed state/depth limit.
 3. Run sleep-set POR with the same depth limit and a declared independence
    predicate.
-4. Compare safety status and retain both counterexample traces when a bug is
-   found. For claimed independent pairs, the POR engine checks symmetry and a
-   local commuting diamond at runtime.
+4. Audit the claimed independence relation over the complete reachable finite
+   state graph. Compare safety status and retain counterexample traces when a
+   bug is found. The POR engine also checks symmetry and local diamonds online.
 5. Run the replicated-register case study under LWW and arrival-order merge,
    with unordered message delivery and an optional bounded duplicate.
 6. Run valid and invalid finite histories through the sequential-spec checker.
@@ -47,7 +47,8 @@ These hypotheses are limited to tested finite models and parameters.
 The experiment runner records:
 - unique states expanded by the BFS reference engine;
 - state/sleep configurations visited by POR;
-- transition extensions and sleep-set prunings;
+- transition extensions removed and sleep-set prunings;
+- number of reachable states covered by the bounded independence audit;
 - safety outcomes and counterexample depth;
 - linearizability search nodes and witness order.
 
