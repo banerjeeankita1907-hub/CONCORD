@@ -65,6 +65,15 @@ independently. With two replicas and a capacity of one, the checker should find
 a two-step execution that exceeds the bound. This is a finite model of escrow
 rights, not a production distributed counter.
 
+## Independent TLA+ cross-check
+
+[formal/EscrowCounter.tla](formal/EscrowCounter.tla) encodes the same finite
+two-replica escrow scenario in TLA+. CI checks its type and safety invariants
+with the pinned Apalache 0.63.0 release using a four-step bounded check. This
+is a separate specification-level cross-check of the escrow example; it is
+not a proof that the JavaScript implementation refines the TLA+ model, nor an
+unbounded proof of the general escrow protocol.
+
 ## Verification model
 
 CONCORD explores finite labelled transition systems. A state is JSON-compatible data; enabled(state) returns uniquely identified transitions; step(state, transition) computes a successor; and invariant(state) states the safety condition. Breadth-first search returns a shortest counterexample in number of transitions when one is found before a configured bound.
@@ -80,7 +89,7 @@ The linearizability checker accepts completed operations with invocation/respons
 - The invalid merge, permanent message loss, naive local quota, and stale-read histories are negative controls.
 - The exhaustive BFS engine is the reference oracle for small-model differential checks.
 - A seeded corpus of 120 generated bounded concurrent counter models is checked across BFS, sleep-set POR, and the exhaustive independence audit; counterexample traces are replayed.
-- CI executes unit tests and the reference experiment runner on Node.js 22 and 24.
+- CI executes unit tests and the reference experiment runner on Node.js 22 and 24, plus a TLA+/Apalache escrow cross-check.
 
 The independent-action experiment now uses eight concurrently enabled actions, rather than a tiny two- or three-action illustration. Its primary reduction metric is the number of transition extensions avoided; unique states alone are not treated as evidence of reduction.
 
