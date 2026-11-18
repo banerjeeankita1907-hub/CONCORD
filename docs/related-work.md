@@ -36,14 +36,28 @@ CONCORD uses a transparent sleep-set DFS with explicit user-supplied
 independence and local runtime diamond checks. It is not an optimal-DPOR
 implementation.
 
+A more recent example combining two reduction techniques is:
+
+- Michalis Kokologiannakis, Iason Marmanis, and Viktor Vafeiadis. “Spore:
+  Combining Symmetry and Partial Order Reduction.” Proceedings of the ACM on
+  Programming Languages 8, PLDI, Article 219, 2024.
+  [DOI: 10.1145/3656449](https://doi.org/10.1145/3656449)
+
+Spore illustrates the level of algorithmic contribution and comparison that
+CONCORD does not currently claim.
+
 ## Symbolic model checking
 
 Apalache is a symbolic model checker for TLA+ and Quint. It translates bounded
 execution questions to SMT constraints and also supports inductiveness
-checking for supported specifications.
+checking for supported specifications. Its documentation distinguishes
+bounded checking from inductive-invariant checking. CONCORD CI uses Apalache
+0.63.0 for a four-step bounded cross-check of the escrow TLA+ model.
 
 - [Apalache documentation](https://apalache-mc.org/)
 - [Apalache repository](https://github.com/apalache-mc/apalache)
+- [Apalache bounded-check CLI](https://apalache-mc.org/docs/apalache/running.html)
+- [Apalache 0.63.0 release](https://github.com/apalache-mc/apalache/releases/tag/v0.63.0)
 
 CONCORD instead explores concrete JSON states. It has a smaller, simpler input
 model and does not offer symbolic constraints or unbounded inductiveness
