@@ -15,8 +15,8 @@ The goal is to make concurrency claims falsifiable: define the state machine and
 | Explicit-state engine | Canonical state hashing, BFS, shortest safety counterexamples, state/depth bounds, explicit inconclusive results |
 | Sleep-set POR | Reduces interleavings under a caller-supplied independence relation; checks local symmetry and the commutativity diamond, with an exhaustive bounded independence-audit module |
 | Linearizability checker | Searches sequential witnesses consistent with real-time precedence and an executable sequential specification |
-| Asynchronous register model | Multiple replicas, local write programs, unordered reliable message delivery, bounded duplicate delivery |
-| Negative controls | An arrival-order-wins register that should fail convergence and histories that should fail linearizability |
+| Asynchronous register model | Multiple replicas, local write programs, unordered message delivery, bounded duplicates and optional permanent message drops |
+| Negative controls | An arrival-order-wins register, permanent message loss, and stale-read histories as negative controls |
 | Reproducible experiments | Baseline vs reduced exploration and valid/invalid object histories, with machine-readable JSON output |
 
 ## Quick start
@@ -48,7 +48,7 @@ The experiment command prints a JSON report with the parameters and outcomes. CI
     const result = explore(model, { maxStates: 20_000 });
     console.log(result.status, result.counterexample);
 
-Change the merge policy to "arrival" to activate the deliberately incorrect negative control. Under the model's reliable-delivery assumption, the checker should find a completed execution in which replicas disagree.
+Change the merge policy to "arrival" to activate the deliberately incorrect negative control. Set maxDrops to a positive value to explore permanent message loss; this is a different fault model and can also violate convergence when there is no anti-entropy repair.
 
 ## Verification model
 
