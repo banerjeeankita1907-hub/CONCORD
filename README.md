@@ -16,6 +16,7 @@ The goal is to make concurrency claims falsifiable: define the state machine and
 | Sleep-set POR | Reduces interleavings under a caller-supplied independence relation; checks local symmetry and the commutativity diamond, with an exhaustive bounded independence-audit module |
 | Linearizability checker | Searches sequential witnesses consistent with real-time precedence and an executable sequential specification |
 | Asynchronous register model | Multiple replicas, local write programs, unordered message delivery, bounded duplicates and optional permanent message drops |
+| Escrow counter model | Rights-conserving transfers, bounded increments, global invariant checks, and a naive-quota negative control |
 | Negative controls | An arrival-order-wins register, permanent message loss, and stale-read histories as negative controls |
 | Reproducible experiments | Baseline vs reduced exploration and valid/invalid object histories, with machine-readable JSON output |
 
@@ -50,6 +51,20 @@ The experiment command prints a JSON report with the parameters and outcomes. CI
 
 Change the merge policy to "arrival" to activate the deliberately incorrect negative control. Set maxDrops to a positive value to explore permanent message loss; this is a different fault model and can also violate convergence when there is no anti-entropy repair.
 
+## Escrow counter case study
+
+The escrow model partitions a global increment capacity into replica-local
+rights. An increment consumes one local right. A transfer first removes rights
+from the sender and places them in the in-flight network; delivery moves those
+rights to the recipient. The invariant checks:
+
+    committed increments + local rights + in-flight rights = global capacity
+
+A deliberately naive model lets every replica spend up to the global capacity
+independently. With two replicas and a capacity of one, the checker should find
+a two-step execution that exceeds the bound. This is a finite model of escrow
+rights, not a production distributed counter.
+
 ## Verification model
 
 CONCORD explores finite labelled transition systems. A state is JSON-compatible data; enabled(state) returns uniquely identified transitions; step(state, transition) computes a successor; and invariant(state) states the safety condition. Breadth-first search returns a shortest counterexample in number of transitions when one is found before a configured bound.
@@ -62,7 +77,7 @@ The linearizability checker accepts completed operations with invocation/respons
 
 - All examples are finite and deterministic.
 - State and search bounds are explicit; exceeding a bound returns **inconclusive**, never **safe**.
-- The invalid merge and stale-read histories are negative controls.
+- The invalid merge, permanent message loss, naive local quota, and stale-read histories are negative controls.
 - The exhaustive BFS engine is the reference oracle for small-model differential checks.
 - CI executes unit tests and the reference experiment runner on Node.js 22 and 24.
 
