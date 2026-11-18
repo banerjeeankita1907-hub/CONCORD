@@ -161,3 +161,37 @@ export function explore(model, options = {}) {
     elapsedMs: Date.now() - started
   };
 }
+
+/**
+ * Replay a trace by transition ID against the current model. This is useful
+ * for validating exported witnesses and detecting model/version drift.
+ */
+export function replayTrace(model, trace) {
+  if (!Array.isArray(trace)) throw new TypeError("trace must be an array");
+  let state = cloneState(model.initialState);
+  for (let index = 0; index < trace.length; index += 1) {
+    const item = trace[index];
+    const id = typeof item === "string" ? item : item?.id;
+    if (typeof id !== "string") {
+      return { valid: false, failedAt: index, reason: "trace item has no transition id", state };
+    }
+    const transition = transitionMap(model, state).find((candidate) => candidate.id === id);
+    if (!transition) {
+      return {
+        valid: false,
+        failedAt: index,
+        reason: `transition ${id} is not enabled`,
+        state
+      };
+    }
+    state = applyTransition(model, state, transition);
+  }
+  const reason = invariantViolation(model, state);
+  return {
+    valid: true,
+    steps: trace.length,
+    state,
+    violatesInvariant: reason !== null,
+    invariantFailure: reason
+  };
+}
