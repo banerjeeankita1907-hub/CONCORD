@@ -58,7 +58,15 @@ jobs:
           echo "$APALACHE_SHA256  $RUNNER_TEMP/apalache.tgz" | sha256sum --check
           mkdir -p "$RUNNER_TEMP/apalache"
           tar -xzf "$RUNNER_TEMP/apalache.tgz" -C "$RUNNER_TEMP/apalache" --strip-components=1
-      - name: Verify finite escrow specification
+      - name: Check initial escrow invariant
         working-directory: formal
         run: |
-          "$RUNNER_TEMP/apalache/bin/apalache-mc" check --length=4 --inv=TypeOK,Conservation,GlobalBound --no-deadlock EscrowCounter.tla
+          "$RUNNER_TEMP/apalache/bin/apalache-mc" check --init=Init --inv=InductiveInvariant --length=0 EscrowCounter.tla
+      - name: Check escrow invariant is inductive
+        working-directory: formal
+        run: |
+          "$RUNNER_TEMP/apalache/bin/apalache-mc" check --init=InductiveInvariant --inv=InductiveInvariant --length=1 --no-deadlock EscrowCounter.tla
+      - name: Bounded execution cross-check
+        working-directory: formal
+        run: |
+          "$RUNNER_TEMP/apalache/bin/apalache-mc" check --init=Init --next=Next --length=4 --inv=TypeOK,Conservation,GlobalBound --no-deadlock EscrowCounter.tla
