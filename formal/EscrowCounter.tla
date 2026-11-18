@@ -6,7 +6,21 @@ EXTENDS Naturals
 Capacity == 2
 TransferAmount == 1
 
-VARIABLES value0, value1, rights0, rights1, inFlight, pc0, pc1
+VARIABLES
+  \* @type: Int;
+  value0,
+  \* @type: Int;
+  value1,
+  \* @type: Int;
+  rights0,
+  \* @type: Int;
+  rights1,
+  \* @type: Int;
+  inFlight,
+  \* @type: Int;
+  pc0,
+  \* @type: Int;
+  pc1
 vars == <<value0, value1, rights0, rights1, inFlight, pc0, pc1>>
 
 TypeOK ==
