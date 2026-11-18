@@ -41,6 +41,27 @@ test("POR validates and reduces the replicated-register schedule space", () => {
   assert.ok(reduced.exploredConfigurations <= full.exploredStates);
 });
 
+
+test("permanent message loss is an explicit counterexample to eventual convergence", () => {
+  const model = createReplicatedRegisterModel({ replicas, merge: "lww", maxDrops: 1 });
+  const result = explore(model, { maxStates: 20_000 });
+  assert.equal(result.status, "counterexample");
+  assert.ok(result.counterexample.state.dropCount > 0);
+  assert.equal(allValuesEqual(result.counterexample.state.replicas), false);
+});
+
+test("independence audit validates the bounded duplicate-and-drop event model", async () => {
+  const { auditIndependence } = await import("../src/independence-audit.js");
+  const model = createReplicatedRegisterModel({
+    replicas,
+    merge: "lww",
+    maxDuplicates: 1,
+    maxDrops: 1
+  });
+  const audit = auditIndependence(model, { maxStates: 20_000 });
+  assert.equal(audit.status, "certified-on-bounded-graph");
+});
+
 test("replicated model rejects invalid inputs", () => {
   assert.throws(() => createReplicatedRegisterModel({ replicas: [{ id: "r0", writes: [] }] }), /at least two/);
   assert.throws(() => createReplicatedRegisterModel({ replicas: [{ id: "r0", writes: [] }, { id: "r1", writes: [] }], merge: "mystery" }), /merge/);
