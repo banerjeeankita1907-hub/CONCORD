@@ -36,9 +36,14 @@ actions. Sleep-set reduction explores representatives of equivalent action
 orders under this relation, rather than every permutation.
 
 CONCORD's POR implementation checks symmetry and the local diamond whenever
-it uses a claimed independent pair. It does not infer global persistence from
-a single local check. The model author must supply a conservative relation;
-over-claiming independence can make reduction unsound. The exhaustive BFS
+it uses a claimed independent pair. The separate independence-audit module
+can exhaustively enumerate a finite reachable graph and check every enabled
+pair declared independent for symmetry, mutual enabledness, and a commuting
+diamond. A complete audit is a bounded certificate over that exact encoded
+graph; it is not an unbounded proof and it does not establish that the model
+faithfully represents a deployed system. If the audit reaches a state/depth
+bound, it returns inconclusive. The model author must still define a
+conservative relation and accurate transition semantics. The exhaustive BFS
 engine is retained as a reference implementation for small-system
 differential checks.
 
