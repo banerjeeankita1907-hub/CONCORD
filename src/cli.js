@@ -13,6 +13,7 @@ console.log("Replicated register:");
 console.log(`  Lamport LWW: ${report.replicatedRegister.lwwBaseline.status}`);
 console.log(`  LWW independence audit: ${report.replicatedRegister.lwwIndependenceAudit.status}`);
 console.log(`  arrival-order negative control: ${report.replicatedRegister.arrivalOrderNegativeControl.status}`);
+console.log(`  permanent message-loss control: ${report.replicatedRegister.permanentMessageLossNegativeControl.status}`);
 console.log("");
 console.log("Linearizability:");
 console.log(`  valid overlapping history: ${report.linearizability.overlappingHistory.status}`);
