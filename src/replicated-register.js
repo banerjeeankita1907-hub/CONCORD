@@ -26,6 +26,7 @@ export function createReplicatedRegisterModel(options = {}) {
   const definitions = options.replicas;
   const merge = options.merge ?? "lww";
   const maxDuplicates = options.maxDuplicates ?? 0;
+  const maxDrops = options.maxDrops ?? 0;
   const initialValue = options.initialValue ?? null;
 
   if (!Array.isArray(definitions) || definitions.length < 2) {
@@ -34,6 +35,9 @@ export function createReplicatedRegisterModel(options = {}) {
   if (!["lww", "arrival"].includes(merge)) throw new TypeError("merge must be lww or arrival");
   if (!Number.isInteger(maxDuplicates) || maxDuplicates < 0 || maxDuplicates > 8) {
     throw new RangeError("maxDuplicates must be an integer from 0 to 8");
+  }
+  if (!Number.isInteger(maxDrops) || maxDrops < 0 || maxDrops > 8) {
+    throw new RangeError("maxDrops must be an integer from 0 to 8");
   }
   canonicalJSON(initialValue);
   const ids = new Set();
@@ -59,7 +63,9 @@ export function createReplicatedRegisterModel(options = {}) {
     nextWrites: replicas.map(() => 0),
     pending: [],
     duplicated: [],
-    duplicateCount: 0
+    duplicateCount: 0,
+    droppedMessages: [],
+    dropCount: 0
   };
 
   function enabled(state) {
@@ -87,6 +93,15 @@ export function createReplicatedRegisterModel(options = {}) {
         to: message.to,
         label: `deliver ${message.baseId} to ${message.to}`
       });
+      if (state.dropCount < maxDrops) {
+        actions.push({
+          id: `drop:${message.id}`,
+          kind: "drop",
+          messageId: message.id,
+          baseId: message.baseId,
+          label: `permanently drop ${message.baseId}`
+        });
+      }
       if (
         state.duplicateCount < maxDuplicates &&
         !state.duplicated.includes(message.baseId)
@@ -147,6 +162,16 @@ export function createReplicatedRegisterModel(options = {}) {
       return state;
     }
 
+    if (action.kind === "drop") {
+      const messageIndex = state.pending.findIndex((item) => item.id === action.messageId);
+      if (messageIndex < 0) throw new Error("stale drop transition");
+      const [message] = state.pending.splice(messageIndex, 1);
+      state.droppedMessages.push(message.id);
+      state.droppedMessages.sort();
+      state.dropCount += 1;
+      return state;
+    }
+
     if (action.kind === "deliver") {
       const messageIndex = state.pending.findIndex((item) => item.id === action.messageId);
       if (messageIndex < 0) throw new Error("stale delivery transition");
@@ -175,6 +200,9 @@ export function createReplicatedRegisterModel(options = {}) {
     if (left.kind === "duplicate" && right.kind === "duplicate") {
       return left.baseId !== right.baseId;
     }
+    if (left.kind === "drop" && right.kind === "drop") {
+      return left.messageId !== right.messageId;
+    }
     if (left.kind === "write" && right.kind === "deliver") {
       return left.replica !== right.to;
     }
@@ -183,11 +211,25 @@ export function createReplicatedRegisterModel(options = {}) {
     }
     if (left.kind === "write" && right.kind === "duplicate") return true;
     if (left.kind === "duplicate" && right.kind === "write") return true;
+    if (left.kind === "write" && right.kind === "drop") return true;
+    if (left.kind === "drop" && right.kind === "write") return true;
     if (left.kind === "deliver" && right.kind === "duplicate") {
       return left.baseId !== right.baseId;
     }
     if (left.kind === "duplicate" && right.kind === "deliver") {
       return right.baseId !== left.baseId;
+    }
+    if (left.kind === "drop" && right.kind === "deliver") {
+      return left.baseId !== right.baseId;
+    }
+    if (left.kind === "deliver" && right.kind === "drop") {
+      return left.baseId !== right.baseId;
+    }
+    if (left.kind === "drop" && right.kind === "duplicate") {
+      return left.baseId !== right.baseId;
+    }
+    if (left.kind === "duplicate" && right.kind === "drop") {
+      return left.baseId !== right.baseId;
     }
     return false;
   }
@@ -214,7 +256,8 @@ export function createReplicatedRegisterModel(options = {}) {
     describe(state) {
       return {
         replicas: state.replicas.map(({ id, value, stamp }) => ({ id, value, stamp })),
-        pendingMessages: state.pending.map(({ id, from, to, value, stamp }) => ({ id, from, to, value, stamp }))
+        pendingMessages: state.pending.map(({ id, from, to, value, stamp }) => ({ id, from, to, value, stamp })),
+        droppedMessages: [...state.droppedMessages]
       };
     }
   };
