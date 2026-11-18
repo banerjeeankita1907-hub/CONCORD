@@ -18,7 +18,7 @@ The goal is to make concurrency claims falsifiable: define the state machine and
 | Asynchronous register model | Multiple replicas, local write programs, unordered message delivery, bounded duplicates and optional permanent message drops |
 | Escrow counter model | Rights-conserving transfers, bounded increments, global invariant checks, and a naive-quota negative control |
 | Negative controls | An arrival-order-wins register, permanent message loss, and stale-read histories as negative controls |
-| Reproducible experiments | Baseline vs reduced exploration and valid/invalid object histories, with machine-readable JSON output |
+| Reproducible experiments | Baseline vs reduced exploration, 120 seeded generated models, and valid/invalid object histories, with machine-readable JSON output |
 
 ## Quick start
 
@@ -79,7 +79,10 @@ The linearizability checker accepts completed operations with invocation/respons
 - State and search bounds are explicit; exceeding a bound returns **inconclusive**, never **safe**.
 - The invalid merge, permanent message loss, naive local quota, and stale-read histories are negative controls.
 - The exhaustive BFS engine is the reference oracle for small-model differential checks.
+- A seeded corpus of 120 generated bounded concurrent counter models is checked across BFS, sleep-set POR, and the exhaustive independence audit; counterexample traces are replayed.
 - CI executes unit tests and the reference experiment runner on Node.js 22 and 24.
+
+The independent-action experiment now uses eight concurrently enabled actions, rather than a tiny two- or three-action illustration. Its primary reduction metric is the number of transition extensions avoided; unique states alone are not treated as evidence of reduction.
 
 See:
 - [Formal semantics and reduction obligations](docs/semantics.md)
