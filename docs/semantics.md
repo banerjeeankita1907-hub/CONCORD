@@ -93,7 +93,25 @@ as an adversarial event and may find a non-convergent quiescent state. It is
 not a proof of liveness; it checks a bounded safety condition at quiescent
 states.
 
-## 5. Bounds and interpretation
+## 5. Escrow counter semantics
+
+The escrow model has a fixed capacity C, local committed values v_i, local
+rights r_i, and in-flight transfer messages m_j. The conservation invariant is
+
+    sum(v_i) + sum(r_i) + sum(amount(m_j)) = C
+
+A local increment consumes one right and adds one to the committed value.
+A transfer consumes rights at the sender before a message is created; message
+delivery adds those rights at the receiver. Thus, the sender and receiver
+cannot spend the same right simultaneously. The model checks the global bound
+sum(v_i) <= C and detects a deadlocked unfinished finite program.
+
+The naive negative control grants each replica its own local increment limit
+equal to the global capacity. This is not escrow: it can over-allocate the
+global resource when two replicas increment concurrently. The checker returns
+a shortest BFS counterexample for the two-replica capacity-one example.
+
+## 6. Bounds and interpretation
 
 All numeric bounds and finite write programs are part of the model. An
 exhaustive result is therefore conditional on those parameters and the
