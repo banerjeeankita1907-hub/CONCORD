@@ -73,7 +73,12 @@ Each replica has a local value, a Lamport clock, and a write program. A local
 write increments its local clock, updates its local value, and multicasts a
 message to every other replica. Messages live in an unordered bag and can be
 delivered in any order. The optional duplicate transition adds at most one
-extra copy per message, subject to a global duplicate bound.
+extra copy per message, subject to a global duplicate bound. A separate
+permanent-drop transition can remove a bounded number of messages without
+delivery. By default the drop budget is zero, which models reliable eventual
+delivery for this finite experiment. A positive drop budget deliberately
+weakens that assumption and can expose non-convergence because the model has
+no anti-entropy or retransmission repair.
 
 The lww policy compares timestamps lexicographically by (clock, writerId)
 and applies the larger timestamp. This is a deterministic total order for the
@@ -82,9 +87,11 @@ overwrites state on every delivery and is a negative control.
 
 The convergence invariant is checked at completed executions: all local
 write programs have finished, the network bag is empty, and replicas must
-hold equal values. The model assumes reliable eventual delivery: it has no
-message-drop or permanent-partition transition. It is not a proof of liveness;
-it checks a bounded safety condition at quiescent states.
+hold equal values. With the default zero drop budget, every message must be
+delivered. With a positive drop budget, the explorer includes permanent loss
+as an adversarial event and may find a non-convergent quiescent state. It is
+not a proof of liveness; it checks a bounded safety condition at quiescent
+states.
 
 ## 5. Bounds and interpretation
 
