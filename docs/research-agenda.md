@@ -27,6 +27,9 @@ or linearizability theory is new.
   more than once does not change the selected maximum.
 - **H5 — delivery assumption:** Allowing a permanent message drop can create a
   quiescent non-convergent state in the one-shot multicast model.
+- **H6 — escrow conservation:** A rights-conserving transfer protocol preserves
+  the bounded-counter invariant in the finite model, while naive replicated
+  local quotas can violate the global bound.
 
 These hypotheses are limited to tested finite models and parameters.
 
@@ -41,8 +44,10 @@ These hypotheses are limited to tested finite models and parameters.
    bug is found. The POR engine also checks symmetry and local diamonds online.
 5. Run the replicated-register case study under LWW and arrival-order merge,
    with unordered delivery, bounded duplicates, and an optional drop fault.
-6. Run valid and invalid finite histories through the sequential-spec checker.
-7. Run all tests and experiments in CI on Node.js 22 and 24.
+6. Verify the escrow counter under all transfer/delivery orders; compare it
+   with the naive local-quota negative control.
+7. Run valid and invalid finite histories through the sequential-spec checker.
+8. Run all tests and experiments in CI on Node.js 22 and 24.
 
 ## Measurements
 
@@ -72,6 +77,8 @@ benchmarks, and competitor tools running on comparable workloads.
   state non-convergent.
 - H5 is refuted if no permitted message-drop schedule produces a quiescent
   non-convergent state for the specified multi-writer workload.
+- H6 is refuted by any reachable escrow-model state that violates rights
+  conservation or the global counter bound.
 
 A discovered disagreement is a correctness bug to investigate, not a result
 to hide or explain away.
@@ -81,8 +88,8 @@ to hide or explain away.
 - Differential fuzzing over generated deterministic finite-state systems.
 - Models with process crashes/restarts, message retransmission, partitions,
   and a selectable fairness assumption.
-- Queue, compare-and-swap register, escrow counter, and replicated set
-  specifications.
+- Queue, compare-and-swap register, partition-repair protocol, and replicated
+  set specifications.
 - Cross-validation of histories against Porcupine and protocol specifications
   against TLC/Apalache where their respective input languages apply.
 - Experiments separating the contribution of state hashing, POR, and symmetry
