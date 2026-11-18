@@ -59,7 +59,7 @@ test("independence audit validates the bounded duplicate-and-drop event model", 
     maxDrops: 1
   });
   const audit = auditIndependence(model, { maxStates: 20_000 });
-  assert.equal(audit.status, "certified-on-bounded-graph");
+  assert.equal(audit.status, "certified-on-bounded-graph", JSON.stringify(audit));
 });
 
 test("replicated model rejects invalid inputs", () => {
