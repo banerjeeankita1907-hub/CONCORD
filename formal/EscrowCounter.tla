@@ -21,8 +21,6 @@ VARIABLES
   pc0,
   \* @type: Int;
   pc1
-vars == <<value0, value1, rights0, rights1, inFlight, pc0, pc1>>
-
 TypeOK ==
   /\ value0 \in 0..Capacity
   /\ value1 \in 0..Capacity
@@ -78,7 +76,5 @@ Conservation ==
   value0 + value1 + rights0 + rights1 + inFlight = Capacity
 
 GlobalBound == value0 + value1 <= Capacity
-
-Spec == Init /\ [][Next]_vars
 
 ========================================================
