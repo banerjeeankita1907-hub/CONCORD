@@ -77,4 +77,6 @@ Conservation ==
 
 GlobalBound == value0 + value1 <= Capacity
 
+InductiveInvariant == TypeOK /\ Conservation /\ GlobalBound
+
 ========================================================
