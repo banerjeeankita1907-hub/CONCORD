@@ -43,9 +43,21 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@v7
-      - name: Verify finite escrow specification
+      - name: Set up Java 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+      - name: Download and verify pinned Apalache release
+        env:
+          APALACHE_SHA256: a756e96af249bf33cd7629667a49472cb26ac8227c48583da139b414834d59df
         run: |
-          docker run --rm \
-            -v "$GITHUB_WORKSPACE/formal:/var/apalache" \
-            ghcr.io/apalache-mc/apalache:0.63.0 \
-            check --length=4 --inv=TypeOK,Conservation,GlobalBound --no-deadlock EscrowCounter.tla
+          curl --fail --location --retry 3 --retry-all-errors \
+            https://github.com/apalache-mc/apalache/releases/download/v0.63.0/apalache-0.63.0.tgz \
+            --output "$RUNNER_TEMP/apalache.tgz"
+          echo "$APALACHE_SHA256  $RUNNER_TEMP/apalache.tgz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/apalache"
+          tar -xzf "$RUNNER_TEMP/apalache.tgz" -C "$RUNNER_TEMP/apalache" --strip-components=1
+      - name: Verify finite escrow specification
+        working-directory: formal
+        run: "$RUNNER_TEMP/apalache/bin/apalache-mc" check --length=4 --inv=TypeOK,Conservation,GlobalBound --no-deadlock EscrowCounter.tla
