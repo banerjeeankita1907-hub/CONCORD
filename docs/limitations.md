@@ -39,8 +39,9 @@
 - Wall-clock timings are not publication-grade measurements.
 - There is no head-to-head quantitative comparison with TLC, Apalache,
   Porcupine, or Jepsen yet. The Apalache CI job checks one separately encoded
-  four-step escrow example; it does not benchmark Apalache or prove that the
-  JavaScript and TLA+ models are refinement-equivalent.
+  two-replica escrow specification (including an inductive-invariant check);
+it does not benchmark Apalache or prove that the JavaScript and TLA+ models
+are refinement-equivalent.
 
 ## Research integrity
 
