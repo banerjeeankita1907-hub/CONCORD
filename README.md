@@ -69,10 +69,12 @@ rights, not a production distributed counter.
 
 [formal/EscrowCounter.tla](formal/EscrowCounter.tla) encodes the same finite
 two-replica escrow scenario in TLA+. CI checks its type and safety invariants
-with the pinned Apalache 0.63.0 release using a four-step bounded check. This
-is a separate specification-level cross-check of the escrow example; it is
-not a proof that the JavaScript implementation refines the TLA+ model, nor an
-unbounded proof of the general escrow protocol.
+with the SHA-256-pinned Apalache 0.63.0 release. It verifies the invariant
+initially, checks that it is inductive for every modeled transition, and also
+runs a four-step bounded cross-check. This is a machine-checked invariant
+argument for the exact finite TLA+ specification; it is not a proof that the
+JavaScript implementation refines that specification, nor a proof of a
+general escrow protocol with arbitrary replicas or failure modes.
 
 ## Verification model
 
