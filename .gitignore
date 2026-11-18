@@ -6,3 +6,5 @@ coverage/
 .env.*
 !.env.example
 results/*.tmp
+
+formal/_apalache-out/
