@@ -46,8 +46,10 @@ These hypotheses are limited to tested finite models and parameters.
    with unordered delivery, bounded duplicates, and an optional drop fault.
 6. Verify the escrow counter under all transfer/delivery orders; compare it
    with the naive local-quota negative control.
-7. Run valid and invalid finite histories through the sequential-spec checker.
-8. Run all tests and experiments in CI on Node.js 22 and 24.
+7. Run a deterministic, seeded corpus of 120 generated bounded counter
+   systems through BFS, POR, and the independence audit; replay BFS witnesses.
+8. Run valid and invalid finite histories through the sequential-spec checker.
+9. Run all tests and experiments in CI on Node.js 22 and 24.
 
 ## Measurements
 
@@ -56,6 +58,7 @@ The experiment runner records:
 - state/sleep configurations visited by POR;
 - transition extensions removed and sleep-set prunings;
 - number of reachable states covered by the bounded independence audit;
+- seeded model corpus size and BFS/POR outcome agreement;
 - safety outcomes and counterexample depth;
 - linearizability search nodes and witness order.
 
