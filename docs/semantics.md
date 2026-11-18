@@ -111,7 +111,20 @@ equal to the global capacity. This is not escrow: it can over-allocate the
 global resource when two replicas increment concurrently. The checker returns
 a shortest BFS counterexample for the two-replica capacity-one example.
 
-## 6. Bounds and interpretation
+## 6. Independent TLA+ cross-check
+
+The two-replica escrow example is also encoded in
+[formal/EscrowCounter.tla](../formal/EscrowCounter.tla). The CI workflow runs
+Apalache 0.63.0 with a maximum trace length of four steps and checks TypeOK,
+Conservation, and GlobalBound. Apalache is a symbolic model checker for TLA+;
+this job checks bounded executions of the written TLA+ specification.
+
+This cross-check is deliberately scoped. The TLA+ specification is a separate
+manual encoding of one finite workload. It does not mechanically derive from
+the JavaScript model, establish refinement between the two encodings, or prove
+the general escrow protocol for unbounded replica counts and executions.
+
+## 7. Bounds and interpretation
 
 All numeric bounds and finite write programs are part of the model. An
 exhaustive result is therefore conditional on those parameters and the
