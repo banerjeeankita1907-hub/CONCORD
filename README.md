@@ -13,7 +13,7 @@ The goal is to make concurrency claims falsifiable: define the state machine and
 | Component | Capability |
 |---|---|
 | Explicit-state engine | Canonical state hashing, BFS, shortest safety counterexamples, state/depth bounds, explicit inconclusive results |
-| Sleep-set POR | Reduces interleavings under a caller-supplied independence relation; checks local symmetry and the commutativity diamond before using a reduction |
+| Sleep-set POR | Reduces interleavings under a caller-supplied independence relation; checks local symmetry and the commutativity diamond, with an exhaustive bounded independence-audit module |
 | Linearizability checker | Searches sequential witnesses consistent with real-time precedence and an executable sequential specification |
 | Asynchronous register model | Multiple replicas, local write programs, unordered reliable message delivery, bounded duplicate delivery |
 | Negative controls | An arrival-order-wins register that should fail convergence and histories that should fail linearizability |
@@ -54,7 +54,7 @@ Change the merge policy to "arrival" to activate the deliberately incorrect nega
 
 CONCORD explores finite labelled transition systems. A state is JSON-compatible data; enabled(state) returns uniquely identified transitions; step(state, transition) computes a successor; and invariant(state) states the safety condition. Breadth-first search returns a shortest counterexample in number of transitions when one is found before a configured bound.
 
-POR uses a sleep-set DFS. A user-supplied independence relation must be symmetric, persistent, and preserve enabledness and the diamond property. CONCORD dynamically checks symmetry and the local diamond whenever it relies on independence. This runtime check is a guard against mistakes, **not a proof of global persistence**. The model author must supply a conservative relation. See [the semantics and soundness obligations](docs/semantics.md).
+POR uses a sleep-set DFS. A user-supplied independence relation must be symmetric, persistent, and preserve enabledness and the diamond property. The separate independence-audit module exhaustively checks symmetry, mutual enabledness, and commuting diamonds over every reachable state in a fully explored finite graph. A complete audit is a bounded certificate for the encoded graph, not an unbounded proof or a guarantee that the model captures a deployed implementation. See [the semantics and soundness obligations](docs/semantics.md).
 
 The linearizability checker accepts completed operations with invocation/response timestamps, an executable sequential specification, and observed results. It searches for a legal sequential witness while preserving non-overlapping real-time order.
 
