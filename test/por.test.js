@@ -16,14 +16,23 @@ function independentTwoFlagModel() {
   };
 }
 
-test("sleep sets preserve a safety counterexample while pruning an interleaving", () => {
+test("sleep sets preserve a safety counterexample", () => {
   const model = independentTwoFlagModel();
   const full = explore(model);
   const reduced = exploreWithSleepSets(model);
   assert.equal(full.status, "counterexample");
   assert.equal(reduced.status, "counterexample");
   assert.equal(reduced.counterexample.depth, 2);
-  assert.ok(reduced.exploredConfigurations < full.exploredStates);
+});
+
+test("sleep sets prune redundant schedules for independent actions", () => {
+  const model = independentTwoFlagModel();
+  model.invariant = () => true;
+  const full = explore(model);
+  const reduced = exploreWithSleepSets(model);
+  assert.equal(full.status, "safe-within-bounds");
+  assert.equal(reduced.status, "safe-within-bounds");
+  assert.ok(reduced.transitions < full.transitions);
   assert.ok(reduced.sleepPruned > 0);
 });
 
