@@ -44,7 +44,7 @@ jobs:
       - name: Check out source
         uses: actions/checkout@v7
       - name: Set up Java 25
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '25'
@@ -60,4 +60,5 @@ jobs:
           tar -xzf "$RUNNER_TEMP/apalache.tgz" -C "$RUNNER_TEMP/apalache" --strip-components=1
       - name: Verify finite escrow specification
         working-directory: formal
-        run: "$RUNNER_TEMP/apalache/bin/apalache-mc" check --length=4 --inv=TypeOK,Conservation,GlobalBound --no-deadlock EscrowCounter.tla
+        run: |
+          "$RUNNER_TEMP/apalache/bin/apalache-mc" check --length=4 --inv=TypeOK,Conservation,GlobalBound --no-deadlock EscrowCounter.tla
