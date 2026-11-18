@@ -114,15 +114,19 @@ a shortest BFS counterexample for the two-replica capacity-one example.
 ## 6. Independent TLA+ cross-check
 
 The two-replica escrow example is also encoded in
-[formal/EscrowCounter.tla](../formal/EscrowCounter.tla). The CI workflow runs
-Apalache 0.63.0 with a maximum trace length of four steps and checks TypeOK,
-Conservation, and GlobalBound. Apalache is a symbolic model checker for TLA+;
-this job checks bounded executions of the written TLA+ specification.
+[formal/EscrowCounter.tla](../formal/EscrowCounter.tla). The CI workflow installs the SHA-256-verified Apalache 0.63.0 release and
+performs three checks: (1) the invariant holds initially, (2) the invariant is
+preserved by every `Next` transition when assumed in the predecessor state,
+and (3) a four-step bounded execution check. The first two checks establish
+that `InductiveInvariant` is an inductive invariant of this exact finite TLA+
+specification; therefore it holds across every finite execution of that
+specification, not merely the first four steps.
 
 This cross-check is deliberately scoped. The TLA+ specification is a separate
 manual encoding of one finite workload. It does not mechanically derive from
 the JavaScript model, establish refinement between the two encodings, or prove
-the general escrow protocol for unbounded replica counts and executions.
+a general escrow protocol for arbitrary replica counts, transfers, membership
+changes, or failure modes.
 
 ## 7. Bounds and interpretation
 
