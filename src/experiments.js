@@ -6,9 +6,10 @@ import { auditIndependence } from "./independence-audit.js";
 import { createEscrowCounterModel, createNaiveBoundedCounterModel } from "./escrow-counter.js";
 
 function independentFlags() {
+  const names = Array.from({ length: 8 }, (_, index) => `process-${index}`);
   return {
-    initialState: { a: false, b: false, c: false },
-    enabled: (state) => ["a", "b", "c"]
+    initialState: Object.fromEntries(names.map((name) => [name, false])),
+    enabled: (state) => names
       .filter((id) => !state[id])
       .map((id) => ({ id, label: `set ${id}` })),
     step: (state, transition) => ({ ...state, [transition.id]: true }),
