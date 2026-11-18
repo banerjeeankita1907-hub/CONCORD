@@ -3,6 +3,7 @@ import { exploreWithSleepSets } from "./por.js";
 import { checkLinearizability } from "./linearizability.js";
 import { createReplicatedRegisterModel } from "./replicated-register.js";
 import { auditIndependence } from "./independence-audit.js";
+import { createEscrowCounterModel, createNaiveBoundedCounterModel } from "./escrow-counter.js";
 
 function independentFlags() {
   return {
@@ -54,6 +55,26 @@ export function runExperiments() {
     { id: "read", client: "c2", invoke: 5, complete: 6, operation: "read", args: null, result: 1 }
   ], registerSpec);
 
+  const escrow = createEscrowCounterModel({
+    capacity: 2,
+    replicas: [
+      { id: "r0", rights: 2, program: [
+        { type: "transfer", to: "r1", amount: 1 },
+        { type: "increment" }
+      ] },
+      { id: "r1", rights: 0, program: [{ type: "increment" }] }
+    ]
+  });
+  const naiveCounter = createNaiveBoundedCounterModel({
+    capacity: 1,
+    replicas: ["r0", "r1"],
+    maxLocalIncrements: 1
+  });
+  const escrowBaseline = explore(escrow, { maxStates: 100_000 });
+  const escrowReduced = exploreWithSleepSets(escrow, { maxConfigurations: 100_000 });
+  const escrowAudit = auditIndependence(escrow, { maxStates: 100_000 });
+  const naiveCounterexample = explore(naiveCounter, { maxStates: 100_000 });
+
   const invalidHistory = checkLinearizability([
     { id: "first", client: "c0", invoke: 0, complete: 1, operation: "write", args: { value: 1 }, result: "ok" },
     { id: "second", client: "c1", invoke: 2, complete: 3, operation: "write", args: { value: 2 }, result: "ok" },
@@ -65,7 +86,8 @@ export function runExperiments() {
     parameters: {
       engine: "bounded explicit-state BFS",
       reduction: "sleep-set POR, independently audited over the finite reachable state graph",
-      replicatedRegister: "3 replicas, one write per replica, reliable unordered delivery",
+      replicatedRegister: "3 replicas, one write per replica, unordered delivery, bounded drops and duplicates",
+      escrowCounter: "2 replicas, total capacity 2, one rights transfer and two increments",
       maxStates: 100_000,
       maxDepth: 100
     },
@@ -82,6 +104,12 @@ export function runExperiments() {
       lwwIndependenceAudit: lwwAudit,
       arrivalOrderNegativeControl: brokenArrival,
       permanentMessageLossNegativeControl: messageLoss
+    },
+    escrowCounter: {
+      rightsConservingBaseline: escrowBaseline,
+      reduced: escrowReduced,
+      independenceAudit: escrowAudit,
+      naiveQuotaNegativeControl: naiveCounterexample
     },
     linearizability: {
       overlappingHistory: validHistory,
