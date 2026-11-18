@@ -48,8 +48,8 @@ These hypotheses are limited to tested finite models and parameters.
    with the naive local-quota negative control.
 7. Run a deterministic, seeded corpus of 120 generated bounded counter
    systems through BFS, POR, and the independence audit; replay BFS witnesses.
-8. Check the escrow TLA+ specification with Apalache 0.63.0 at a four-step
-   bound, separately from the JavaScript model.
+8. Check that the escrow TLA+ invariant holds initially and is inductive under
+   every transition with Apalache 0.63.0; also run a four-step bounded check.
 9. Run valid and invalid finite histories through the sequential-spec checker.
 10. Run all tests and experiments in CI on Node.js 22 and 24.
 
@@ -64,8 +64,9 @@ The experiment runner records:
 - safety outcomes and counterexample depth;
 - linearizability search nodes and witness order.
 
-The independent TLA+ run checks the manually encoded two-replica escrow case;
-it is cross-validation of one finite example, not refinement verification.
+The independent TLA+ run checks the manually encoded two-replica escrow case.
+Its inductiveness result proves the invariant for that exact TLA+ state machine,
+but is not a refinement proof for the JavaScript model.
 
 Elapsed wall-clock times are diagnostic only and are not treated as robust
 performance evidence in this prototype. A publishable comparison would need
