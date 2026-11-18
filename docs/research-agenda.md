@@ -25,6 +25,8 @@ or linearizability theory is new.
 - **H4 — duplicate tolerance:** The LWW register remains convergent under the
   bounded duplicate-delivery model because applying the same timestamped value
   more than once does not change the selected maximum.
+- **H5 — delivery assumption:** Allowing a permanent message drop can create a
+  quiescent non-convergent state in the one-shot multicast model.
 
 These hypotheses are limited to tested finite models and parameters.
 
@@ -38,7 +40,7 @@ These hypotheses are limited to tested finite models and parameters.
    state graph. Compare safety status and retain counterexample traces when a
    bug is found. The POR engine also checks symmetry and local diamonds online.
 5. Run the replicated-register case study under LWW and arrival-order merge,
-   with unordered message delivery and an optional bounded duplicate.
+   with unordered delivery, bounded duplicates, and an optional drop fault.
 6. Run valid and invalid finite histories through the sequential-spec checker.
 7. Run all tests and experiments in CI on Node.js 22 and 24.
 
@@ -68,6 +70,8 @@ benchmarks, and competitor tools running on comparable workloads.
   multi-writer schedules.
 - H4 is refuted if a duplicate-delivery execution makes an LWW quiescent
   state non-convergent.
+- H5 is refuted if no permitted message-drop schedule produces a quiescent
+  non-convergent state for the specified multi-writer workload.
 
 A discovered disagreement is a correctness bug to investigate, not a result
 to hide or explain away.
