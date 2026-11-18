@@ -197,12 +197,11 @@ export function createReplicatedRegisterModel(options = {}) {
     if (left.kind === "deliver" && right.kind === "deliver") {
       return left.to !== right.to && left.messageId !== right.messageId;
     }
-    if (left.kind === "duplicate" && right.kind === "duplicate") {
-      return left.baseId !== right.baseId;
-    }
-    if (left.kind === "drop" && right.kind === "drop") {
-      return left.messageId !== right.messageId;
-    }
+    // All duplicate actions consume the same bounded global budget.
+    // Keep them dependent even when they target different messages.
+    if (left.kind === "duplicate" && right.kind === "duplicate") return false;
+    // All drop actions consume the same bounded global budget.
+    if (left.kind === "drop" && right.kind === "drop") return false;
     if (left.kind === "write" && right.kind === "deliver") {
       return left.replica !== right.to;
     }
