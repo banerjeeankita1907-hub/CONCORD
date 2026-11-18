@@ -1,0 +1,15 @@
+{
+  "name": "concord-verification-lab",
+  "version": "0.1.0",
+  "private": false,
+  "type": "module",
+  "description": "A bounded verification laboratory for concurrent and replicated systems.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/engine.js && node --check src/por.js && node --check src/linearizability.js && node --check src/replicated-register.js && node --check src/experiments.js",
+    "experiment": "node src/experiments.js",
+    "verify:examples": "node src/cli.js"
+  },
+  "license": "MIT"
+}
